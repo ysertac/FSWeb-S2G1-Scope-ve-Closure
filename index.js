@@ -34,10 +34,16 @@ console.log(
   Aşağıdaki skor1 ve skor2 kodlarını inceleyiniz ve aşağıdaki soruları altına not alarak cevaplayın
   
   1. skor1 ve skor2 arasındaki fark nedir?
+
+  1. Skor1 skorArtirici fonksiyonuna bağlı bir değişken olarak tanımlanırken Skor2 kendisi bir fonksiyondur.
   
   2. Hangisi bir closure kullanmaktadır? Nasıl tarif edebilirsin? (yarınki derste öğreneceksin :) )
-  
+
+  2. Skor 1 closure kullanmaktadır. Bu sayede skor 1'e dışarıdan erişim sağlayabiliyoruz.
+
   3. Hangi durumda skor1 tercih edilebilir? Hangi durumda skor2 daha mantıklıdır?
+
+  3. Dinamik olarak farklı verilere ihtiyaç duyduğumuzda closure ile ilk yapıyı kullanıyoruz ama tek bir veriye ihtiyaç duyuyorsak iknici kullanım daha mantıklıdır.
 */
 
 // skor1 kodları
@@ -67,15 +73,10 @@ Aşağıdaki takimSkoru() fonksiyonununda aşağıdakileri yapınız:
 Not: Bu fonskiyon, aşağıdaki diğer görevler için de bir callback fonksiyonu olarak da kullanılacak
 */
 
-function takimSkoru(tkSkor) {
-  tkSkor = Math.round(Math.random() * 25);
-  if (tkSkor < 10) {
-    return takimSkoru(tkSkor);
-  } else {
-    return tkSkor;
-  }
+function takimSkoru() {
+  return Math.round(Math.random() * 15) + 10;
 }
-console.log(takimSkoru("ASkor"));
+console.log(takimSkoru());
 
 /* Görev 3: macSonucu() 
 Aşağıdaki macSonucu() fonksiyonununda aşağıdakileri yapınız:
@@ -96,8 +97,8 @@ function macSonucu(callback, periyotSayisi) {
   let skorHome = 0;
   let skorAway = 0;
   for (let i = 0; i < periyotSayisi; i++) {
-    skorHome = callback("EvSahibi");
-    skorAway = callback("KonukTakım");
+    skorHome = callback();
+    skorAway = callback();
   }
   let genelSkor = {
     EvSahibi: skorHome,
@@ -120,16 +121,12 @@ Aşağıdaki periyotSkoru() fonksiyonununda aşağıdakileri yapınız:
   */
 
 function periyotSkoru(callback) {
-  let skorHome = callback("EvSahibi");
-  let skorAway = callback("KonukTakım");
-
-  let periyotSkor = {
-    EvSahibi: skorHome,
-    KonukTakim: skorAway,
+  return {
+    EvSahibi: callback(),
+    KonukTakim: callback(),
   };
-  return periyotSkor;
 }
-
+//console.log(periyotSkoru(takimSkoru));
 /* Zorlayıcı Görev 5: skorTabelasi() 
 Aşağıdaki skorTabelasi() fonksiyonunu kullanarak aşağıdakileri yapınız:
   1. İlk parametre olarak Görev 4'te oluşturduğumuz 'periyotSkoru'nu bir değişken olarak almalı
@@ -161,9 +158,45 @@ MAÇ UZAR ise skorTabelasi(periyotSkoru,takimSkoru,4)
 ] */
 // NOTE: Bununla ilgili bir test yoktur. Eğer logladığınız sonuçlar yukarıdakine benziyor ise tmamlandı sayabilirsiniz.
 
-function skorTabelasi(/*Kodunuzu buraya yazınız*/) {
-  /*Kodunuzu buraya yazınız*/
+function skorTabelasi(callback1, callback2, ceyrekSayisi) {
+  //Tanımlamalar
+  let skorTabela = [];
+  let skorHome = 0;
+  let skorAway = 0;
+  let evSahibiSkor, konukTakimSkor;
+  //Çeyrek sayısı kadar maç oynatılıyor
+  for (let i = 1; i <= ceyrekSayisi; i++) {
+    const periyot = callback1(callback2);
+    evSahibiSkor = periyot.EvSahibi;
+    konukTakimSkor = periyot.KonukTakim;
+    skorTabela.push(
+      `${i}. Periyot: Ev Sahibi ${evSahibiSkor} - Konuk Takım ${konukTakimSkor}`
+    );
+    skorHome = skorHome + evSahibiSkor;
+    skorAway = skorAway + konukTakimSkor;
+  }
+  //Beraberlik durumunda uzatmalar oynatılıyor
+  let i = 1;
+  while (skorHome == skorAway) {
+    const periyot = callback1(callback2);
+    evSahibiSkor = periyot.EvSahibi;
+    konukTakimSkor = periyot.KonukTakim;
+    skorTabela.push(
+      `${i}. Uzatma: Ev Sahibi ${evSahibiSkor} - Konuk Takım ${konukTakimSkor}`
+    );
+    i++;
+    skorHome = skorHome + evSahibiSkor;
+    skorAway = skorAway + konukTakimSkor;
+  }
+  //Maç sonucunu ekliyoruz
+  skorTabela.push(
+    `Maç Sonucu: Ev Sahibi ${skorHome} - Konuk Takım ${skorAway}`
+  );
+  // Oluşan arrayi dönüyoruz.
+  return skorTabela;
 }
+
+console.log(skorTabelasi(periyotSkoru, takimSkoru, 4));
 
 /* Aşağıdaki satırları lütfen değiştirmeyiniz*/
 function sa() {
